@@ -1,0 +1,69 @@
+[gd_scene load_steps=7 format=3 uid="uid://bgcqqh0aymj7q"]
+
+[ext_resource type="Script" path="res://Main/Csharp/SandSimulation.cs" id="1_1yxoy"]
+[ext_resource type="Script" path="res://Main/UI/Debug/fps_counter.gd" id="3_7f3sc"]
+[ext_resource type="Script" path="res://Main/painter.gd" id="4_0puh6"]
+[ext_resource type="Script" path="res://Main/UI/element_selector.gd" id="4_esoim"]
+[ext_resource type="Script" path="res://Main/UI/vslider.gd" id="5_cuudj"]
+[ext_resource type="Script" path="res://Main/UI/Debug/cell_counter.gd" id="6_ic8vw"]
+
+[node name="Main" type="Node"]
+
+[node name="SandSimulation" type="TextureRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1yxoy")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Element_Selector" type="OptionButton" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -77.0
+offset_bottom = 20.0
+grow_horizontal = 0
+script = ExtResource("4_esoim")
+
+[node name="VSlider" type="VSlider" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -16.0
+offset_top = 43.0
+offset_bottom = 174.0
+grow_horizontal = 0
+script = ExtResource("5_cuudj")
+
+[node name="Debug" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FPS_Counter" type="RichTextLabel" parent="CanvasLayer/Debug"]
+layout_mode = 0
+offset_right = 77.0
+offset_bottom = 53.0
+script = ExtResource("3_7f3sc")
+
+[node name="Cell_Counter" type="RichTextLabel" parent="CanvasLayer/Debug"]
+layout_mode = 0
+offset_top = 34.0
+offset_right = 99.0
+offset_bottom = 60.0
+script = ExtResource("6_ic8vw")
+
+[node name="Painter" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_0puh6")
+
+[connection signal="element_changed" from="CanvasLayer/Element_Selector" to="Painter" method="_on_element_selector_element_changed"]
+[connection signal="item_selected" from="CanvasLayer/Element_Selector" to="CanvasLayer/Element_Selector" method="_on_item_selected"]
+[connection signal="toggled" from="CanvasLayer/Element_Selector" to="CanvasLayer/Element_Selector" method="_on_toggled"]
+[connection signal="drag_ended" from="CanvasLayer/VSlider" to="CanvasLayer/VSlider" method="_on_drag_ended"]
+[connection signal="drag_started" from="CanvasLayer/VSlider" to="CanvasLayer/VSlider" method="_on_drag_started"]
