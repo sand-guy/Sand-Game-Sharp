@@ -12,30 +12,9 @@ using System.Threading.Tasks;
 [GlobalClass]
 public partial class SandSimulation : TextureRect
 {
-	// The element list
-	private List<Element> Elements { get; set; }
+	// Shared random instance
 
-	public void FillElements()
-	{
-		Elements = new List<Element>();
-		Elements.Capacity = 128;
-
-		Elements.Insert(0, new Void());
-		Elements.Insert(1, new Sand());
-		Elements.Insert(2, new Wall());
-		Elements.Insert(3, new Water());
-	}
-
-	// An external access point for the element list
-	public Element[] GetElements()
-	{
-		return Elements.ToArray();
-	}
-
-	[Export]
-	int InternalSeed = 1234;
-
-	Random rand;
+	Random Rand;
 
 	// Simulation dimensions
 	private int Width = 400;
@@ -46,6 +25,8 @@ public partial class SandSimulation : TextureRect
 
 	// Drawing data to be used to generate an image once per frame
 	byte[] DrawData;
+
+	// CHUNK VARIABLES
 
 	// Dimension of each chunk
 	int ChunkSize = 16;
@@ -68,8 +49,12 @@ public partial class SandSimulation : TextureRect
 	// Will need to be implemented into drawing functions, holding onto draw data between frames (not just image)
 	bool[] ChunkUpdated;
 
-	// Variables for multithreading
+	// MULTITHREADING VARIABLES
+
+	// The random "row offset" (vertical shift) that will be applied each frame t0 the chunk processing to avoid artifacts along chunk borders
 	int GlobalRowOffset;
+	// The maximum row offset to use in a given frame, positive or negative
+	int MaxRowOffset = 8;
 
 	int FrameCount = 0;
 
@@ -83,9 +68,9 @@ public partial class SandSimulation : TextureRect
 
 	public SandSimulation()
 	{
-		FillElements();
+		ElementList.FillElementList();
 
-		rand = new Random(InternalSeed);
+		Rand = new Random();
 
 		ChunkWidth = Width / ChunkSize;
 		ChunkHeight = Height / ChunkSize;
@@ -122,11 +107,8 @@ public partial class SandSimulation : TextureRect
 		}
 
 		Array.Fill<bool>(ShouldAwakenChunk, false);
-		GlobalRowOffset++;
-		if (GlobalRowOffset > 1)
-		{
-			GlobalRowOffset = -1;
-		}
+		GlobalRowOffset = Rand.Next(0, MaxRowOffset + 1); // Generate a random row offset to apply to threaded chunk processing
+		GlobalRowOffset *= (Randf() < 0.5 ? -1 : 1); // 50/50 to make the offset positive or negative
 
 		// Simulate the grid by giving threads a row of chunks to process
 		// Process all even rows, then all odd rows to prevent overlapping attempts at cell access
@@ -177,7 +159,7 @@ public partial class SandSimulation : TextureRect
 
 		for (int i = chunkRow * ChunkWidth; i < (chunkRow + 1) * ChunkWidth; i++)
 		{
-			if (AliveCount[i] == 0 || AwakeChunk[i] == 0 && Randf() > AwakenChance)
+			if (AliveCount[i] == 0 || (AwakeChunk[i] == 0 && Randf() > AwakenChance))
 			{
 				continue;
 			}
@@ -185,7 +167,7 @@ public partial class SandSimulation : TextureRect
 			int RowOffset = i / ChunkWidth * ChunkSize + GlobalRowOffset;
 			int ColOffset = i % ChunkWidth * ChunkSize;
 			// Shuffle the particle order to avoid artifacts
-			ParticleOrder = ParticleOrder.OrderBy(i => rand.Next()).ToList();
+			ParticleOrder = ParticleOrder.OrderBy(i => Rand.Next()).ToList();
 
 			foreach (int j in ParticleOrder)
 			{
@@ -195,7 +177,7 @@ public partial class SandSimulation : TextureRect
 					continue;
 				}
 				int col = j % ChunkSize + ColOffset;
-				Elements[Cells[row * Width + col]].Process(this, row, col);
+				ElementList.Elements[Cells[row * Width + col]].Process(this, row, col);
 			}
 		}
 		
@@ -232,7 +214,7 @@ public partial class SandSimulation : TextureRect
 
 	public float Randf()
 	{
-		return (float)rand.NextDouble();
+		return (float)Rand.NextDouble();
 	}
 
 	public bool InBounds(int row, int col)
@@ -247,11 +229,11 @@ public partial class SandSimulation : TextureRect
 		{
 			return false;
 		}
-		if (Elements[GetCell(row2, col2)].GetState() == 0)
+		if (ElementList.Elements[GetCell(row2, col2)].GetState == 0)
 		{
 			return false; // Do not allow a solid to be replaced
 		}
-		if (Elements[GetCell(row, col)].GetState() != 0 && Elements[GetCell(row, col)].GetDensity() <= Elements[GetCell(row2, col2)].GetDensity())
+		if (ElementList.Elements[GetCell(row, col)].GetState != 0 && ElementList.Elements[GetCell(row, col)].GetDensity <= ElementList.Elements[GetCell(row2, col2)].GetDensity)
 		{
 			return false; // If the replacing element is not solid, and has a density less than or equal to what it is attempting to replace, do not replace
 		}
@@ -270,7 +252,7 @@ public partial class SandSimulation : TextureRect
 		{
 			return; // Do not move and swap, you've encountered or are trying to move a wall!
 		}
-		if (Elements[GetCell(row, col)].GetDensity() <= Elements[GetCell(row2, col2)].GetDensity())
+		if (ElementList.Elements[GetCell(row, col)].GetDensity <= ElementList.Elements[GetCell(row2, col2)].GetDensity)
 		{
 			return; // The replacing cell has the same or lower density, do not replace!
 		}
@@ -279,26 +261,6 @@ public partial class SandSimulation : TextureRect
 		SetCell(row2, col2, old);
 	}
 
-	public void LiquidProcess(int row, int col, int fluidity)
-	{
-		for (int i = 0; i < fluidity; i++)
-		{
-			double random = Randf();
-			int new_col = col + (random < (0.5 + 1.0 / 32) ? 1 : -1); // A 50% chance to move left or right, with a 1/32 chance bias to go toward the right
-			if (random < 1.0 / 32) // A 1/32 chance that the horizontal movement will be applied
-			{
-				new_col = col;
-			}
-
-			int new_row = row + (IsSwappable(row, col, row + 1, new_col) ? 1 : 0); // If it is allowed, attempt to move down
-			if (IsSwappable(row, col, new_row, new_col) && (Randf() < 0.6 || !IsSwappable(row, col, new_row + 1, new_col))) // If the horizontal and/or vertical moves are allowed, 
-			{                                                                                                               // there is a 60% chance to apply the movement
-				MoveAndSwap(row, col, new_row, new_col);                                                                    // but it will always apply if no more vertical moves can be done at that horizontal location
-				row = new_row;
-				col = new_col;
-			}
-		}
-	}
 
 	public int GetCell(int row, int col)
 	{
@@ -395,7 +357,7 @@ public partial class SandSimulation : TextureRect
 					continue;
 				}
 
-				byte[] color = Elements[type].GetColor();
+				byte[] color = ElementList.Elements[type].GetColor;
 
 				DrawData[idx] = color[0];
 				DrawData[idx + 1] = color[1];

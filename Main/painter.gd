@@ -4,9 +4,9 @@ class_name Painter
 # Reference to the sand sim for less verbose access
 var sim: SandSimulation
 
-# Fluids and powders (solid) need to be drawn with a lower density
+# Liquids and powder solids need to be drawn with a lower density
 var is_powder: Dictionary = {}
-var is_fluid: Dictionary = {}
+var is_liquid: Dictionary = {}
 
 # State variables
 var press_released: bool = true
@@ -22,10 +22,14 @@ func _ready() -> void:
 	await get_tree().get_root().ready
 	sim = CommonReference.sim # Less verbose sim access
 	
-	for i in [1]:
-		is_powder[i] = true
-	for i in [3]:
-		is_fluid[i] = true
+	var elements = ElementList.GetElementsArray()
+	
+	for type in elements:
+		type = elements.find(type)
+		if elements[type].GetState == 0 and elements[type].GetStatic == false:
+			is_powder[type] = true
+		elif elements[type].GetState == 1:
+			is_liquid[type] = true
 	
 	mouse_pressed.connect(_on_mouse_pressed)
 
@@ -74,7 +78,7 @@ func draw_pixel(row: float, col: float) -> void:
 	if selected_element in is_powder and randf() > 0.1:
 		return
 	# Fluids have a similar random noise added, this time for performance reasons
-	if selected_element in is_fluid and randf() > 0.2:
+	if selected_element in is_liquid and randf() > 0.2:
 		return
 	var y: int = roundi(row)
 	var x: int = roundi(col)

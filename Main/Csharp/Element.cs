@@ -1,168 +1,69 @@
 using Godot;
 using System;
 
+// Element is inherited by the four base classes of elements: solids, powders, liquids and gasses
+// Getter methods are used to access constant information about a type of element
+// Abstract properties must be defined by inheriting base classes or elements
 abstract public partial class Element : RefCounted
 {
-	abstract public void Process(SandSimulation sim, int row, int col);
+	// UNIVERSAL TO ALL ELEMENTS
+	
+	// Gets the name of the element type
+	// Expect a return like "Air" or "Sand"
+	public string GetName
+	{
+		get { return this.GetType().Name; }
+	}
+
+	// PHYSICS PROCESS
+
+	// A process function to be called each frame that the element is considered active by the simulation
+	// This acts on the state data of a given element via SandSimulation, but elements DO NOT contain state data
+	// State data is stored in a separate type of object, so only one copy of each element exists and is referenced
+	public abstract void Process(SandSimulation sim, int row, int col);
+
+	// PHYSICS PROPERTIES
+
+	// VIRTUAL PROPERTIES
+
+	// Things that are static cannot be replaced, for any reason
+	// Only things that inherit Static will return true for this property
+	// No need to touch this, unless you wanna make something static temporarily
+	public virtual bool GetStatic
+	{
+		get { return false; } 
+	}
+
+	// ABSTRACT PROPERTIES
+
+	// Get the physical state of the element: solid, liquid or gas
+	// 0 = SOLID
+	// 1 = LIQUID
+	// 2 = GAS
+	public abstract int GetState
+	{
+		get;
+	}
+
+	// Density can be as low as zero, such as for air, and as high as an integer can store
+	public abstract double GetDensity
+	{
+		get;
+	}
+
+	// Flammable things may burn, have fire spread to them, and be destroyed by it
+	// True = flammable, let it burn!
+	// False = nonflammable, will never burn!
+	public abstract bool GetFlammable
+	{
+		get;
+	}
+
+	// RENDERING VARIABLES
 
 	// Returns three values in the array, [0] = r [1] = g [2] = b | 8-bit color depth
-	abstract public byte[] GetColor();
-
-	abstract public double GetDensity();
-
-	// 0 if the element is solid, 1 if it is liquid, 2 if it is gaseous
-	abstract public int GetState();
-
-	public string GetName()
+	public abstract byte[] GetColor
 	{
-		return this.GetType().Name;
-	}
-}
-
-// ID = 0
-public partial class Void : Element
-{
-	public Void()
-	{
-		
-	}
-	
-	public override void Process(SandSimulation sim, int row, int col)
-	{
-		return;
-	}
-
-	public override byte[] GetColor()
-	{
-		byte r = 70;
-		byte g = 70;
-		byte b = 70;
-
-		byte[] color = { r, g, b };
-
-		return color;
-	}
-
-	public override double GetDensity()
-	{
-		return 0.0;
-	}
-
-	public override int GetState()
-	{
-		return 2;
-	}
-}
-
-// ID = 1
-public partial class Sand : Element
-{
-	// Constants which govern the non-universal physical properties of this element
-	const double POWDER = 1 / 1.05;
-	
-	public override void Process(SandSimulation sim, int row, int col)
-	{
-		if (sim.Randf() >= POWDER) {
-			return;
-		}	
-
-		bool downLeft = sim.IsSwappable(row, col, row + 1, col - 1);
-		bool down = sim.IsSwappable(row, col, row + 1, col);
-		bool downRight = sim.IsSwappable(row, col, row + 1, col + 1);
-
-		if (down)
-		{
-			sim.MoveAndSwap(row, col, row + 1, col);
-		} else if (downLeft && downRight)
-		{
-			sim.MoveAndSwap(row, col, row + 1, col + (sim.Randf() < 0.5 ? 1 : -1));
-		} else if (downLeft)
-		{
-			sim.MoveAndSwap(row, col, row + 1, col - 1);
-		} else if (downRight)
-		{
-			sim.MoveAndSwap(row, col, row + 1, col + 1);
-		}
-	}
-
-	public override byte[] GetColor()
-	{
-		byte r = 244;
-		byte g = 218;
-		byte b = 128;
-
-		byte[] color = { r, g, b };
-
-		return color;
-	}
-
-	public override double GetDensity() {
-		return 2.0;
-	}
-
-	public override int GetState()
-	{
-		return 0;
-	}
-}
-
-// ID = 2
-public partial class Wall : Element
-{
-	public override void Process(SandSimulation sim, int row, int col)
-	{
-		return;
-	}
-
-	public override byte[] GetColor()
-	{
-		byte r = 212;
-		byte g = 212;
-		byte b = 212;
-
-		byte[] color = { r, g, b };
-
-		return color;
-	}
-
-	public override double GetDensity() {
-		return 1.0;
-	}
-
-	public override int GetState()
-	{
-		return 0;
-	}
-}
-
-// ID = 3
-public partial class Water : Element
-{
-	// Constants which govern the non-universal physical properties of this element
-	const int FLUIDITY = 2;
-
-	public override void Process(SandSimulation sim, int row, int col)
-	{
-		sim.LiquidProcess(row, col, FLUIDITY);
-	}
-
-	public override byte[] GetColor()
-	{
-		byte r = 66;
-		byte g = 135;
-		byte b = 245;
-
-		byte[] color = { r, g, b };
-
-		return color;
-	}
-
-	public override double GetDensity() {
-		return 1.0;
-	}
-
-	public override int GetState()
-	{
-		return 1;
+		get;
 	}
 }
