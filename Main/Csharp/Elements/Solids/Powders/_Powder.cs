@@ -8,25 +8,26 @@ public abstract partial class Powder : Solid
 	// Or don't! This is just an inherited default that gets used by Sand
 	public void PowderProcess(SandSimulation sim, int row, int col, float powderSlowing)
 	{
-		if (sim.Randf() >= powderSlowing) {
-			return;
-		}	
-
-		bool downLeft = sim.IsSwappable(row, col, row + 1, col - 1);
 		bool down = sim.IsSwappable(row, col, row + 1, col);
+
+		if (down) {
+			sim.MoveAndSwap(row, col, row + 1, col);
+			return;
+		} else if (sim.Randf() >= powderSlowing) { // After trying to move straight down, there's a chance not to move further
+			sim.DontSleepNextFrame(row, col); // If the powder was not allowed to move this frame, make sure its chunk is not put to sleep for the next frame to avoid artifacts
+			return;
+		}
+
+		// If we cannot move down, and powderSlowing did not prevent us from moving this frame
+		// Attempt to move diagonally down
+		bool downLeft = sim.IsSwappable(row, col, row + 1, col - 1);
 		bool downRight = sim.IsSwappable(row, col, row + 1, col + 1);
 
-		if (down)
-		{
-			sim.MoveAndSwap(row, col, row + 1, col);
-		} else if (downLeft && downRight)
-		{
+		if (downLeft && downRight) {
 			sim.MoveAndSwap(row, col, row + 1, col + (sim.Randf() < 0.5 ? 1 : -1));
-		} else if (downLeft)
-		{
+		} else if (downLeft) {
 			sim.MoveAndSwap(row, col, row + 1, col - 1);
-		} else if (downRight)
-		{
+		} else if (downRight) {
 			sim.MoveAndSwap(row, col, row + 1, col + 1);
 		}
 	}

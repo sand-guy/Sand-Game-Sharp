@@ -3,13 +3,16 @@ using System;
 
 public partial class Water : Liquid
 {
-	// The number of times the particle will attempt to move during a given frame
-	int Liquidity = 4;
+	// The number of times the particle will attempt to spread out horizontally during a given frame, if it can't move down
+	int Dispersion = 5;
+
+	// The percent chance that, even if it is possible, the cell will not move in a given frame
+	float Viscosity = 0.0f;
 
 	// Sand implements the default PowderProcess for its Process function
 	public override void Process(SandSimulation sim, int row, int col)
 	{
-		base.LiquidProcess(sim, row, col, Liquidity);
+		base.LiquidProcess(sim, row, col, Dispersion, Viscosity);
 	}
 
 	// PHYSICS VARIABLES

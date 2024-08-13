@@ -4,9 +4,10 @@ class_name Painter
 # Reference to the sand sim for less verbose access
 var sim: SandSimulation
 
-# Liquids and powder solids need to be drawn with a lower density
+# Liquids, powders and gasses need to be drawn with a lower density
 var is_powder: Dictionary = {}
 var is_liquid: Dictionary = {}
+var is_gas: Dictionary = {}
 
 # State variables
 var press_released: bool = true
@@ -22,7 +23,7 @@ func _ready() -> void:
 	await get_tree().get_root().ready
 	sim = CommonReference.sim # Less verbose sim access
 	
-	var elements = ElementList.GetElementsArray()
+	var elements: Array = ElementList.GetElementsArray()
 	
 	for type in elements:
 		type = elements.find(type)
@@ -30,6 +31,8 @@ func _ready() -> void:
 			is_powder[type] = true
 		elif elements[type].GetState == 1:
 			is_liquid[type] = true
+		elif elements[type].GetState == 2 and type != 0:
+			is_gas[type] = true
 	
 	mouse_pressed.connect(_on_mouse_pressed)
 
@@ -75,11 +78,15 @@ func draw_circle(x: float, y: float, radius: float) -> void:
 # Here we can control what can be drawn over what later on
 func draw_pixel(row: float, col: float) -> void:
 	# Powders must have some random noise in order to prevent stacking behavior
-	if selected_element in is_powder and randf() > 0.1:
+	if selected_element in is_powder and randf() > 0.15:
 		return
-	# Fluids have a similar random noise added, this time for performance reasons
-	if selected_element in is_liquid and randf() > 0.2:
+	# Fluids have a similar random noise added
+	if selected_element in is_liquid and randf() > 0.08:
 		return
+	# And lastly so do gasses! Only statics and air/eraser get to be placed solid
+	if selected_element in is_gas and randf() > 0.06:
+		return
+	
 	var y: int = roundi(row)
 	var x: int = roundi(col)
 	

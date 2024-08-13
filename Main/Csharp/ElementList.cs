@@ -29,6 +29,7 @@ public partial class ElementList : RefCounted
 		elements.Insert(1, new Sand());
 		elements.Insert(2, new Wall());
 		elements.Insert(3, new Water());
+		elements.Insert(4, new Smoke());
 	}
 
 	// Accessor method for GDScript

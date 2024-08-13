@@ -26,32 +26,11 @@ public partial class SandSimulation : TextureRect
 	// Drawing data to be used to generate an image once per frame
 	byte[] DrawData;
 
-	// CHUNK VARIABLES
-
-	// Dimension of each chunk
-	int ChunkSize = 16;
-	// The chance that a sleeping chunk can randomly reawaken for a frame
-	float AwakenChance = 0.68f;
-
-	// Simulation dimensions in chunks
-	// Since resizing is not currently supported, this is calculated just once in the constructor of this class
-	int ChunkWidth;
-	int ChunkHeight;
-
-	// Stores the number of non-empty cells within each chunk
-	// Could be a byte, but this would limit the maximum chunk size
-	int[] AliveCount;
-	// Stores whether a chunk is awake or not, 0 is asleep and 1-2 is awake (will process an extra 1-2 frames until sleeping again)
-	byte[] AwakeChunk;
-	// Stores whether a chunk should be awakened on the next frame
-	bool[] ShouldAwakenChunk;
-	// Stores whether a given chunk has had visual updates within this frame
-	// Will need to be implemented into drawing functions, holding onto draw data between frames (not just image)
-	bool[] ChunkUpdated;
+	Chunks Chunks;
 
 	// MULTITHREADING VARIABLES
 
-	// The random "row offset" (vertical shift) that will be applied each frame t0 the chunk processing to avoid artifacts along chunk borders
+	// The random "row offset" (vertical shift) that will be applied each frame to the chunk processing to avoid artifacts along chunk borders
 	int GlobalRowOffset;
 	// The maximum row offset to use in a given frame, positive or negative
 	int MaxRowOffset = 8;
@@ -72,20 +51,12 @@ public partial class SandSimulation : TextureRect
 
 		Rand = new Random();
 
-		ChunkWidth = Width / ChunkSize;
-		ChunkHeight = Height / ChunkSize;
+		Chunks = new Chunks(Width, Height);
 		// GD.Print("INITIALIZATION - Array in chunks is " + ChunkWidth + "x" + ChunkHeight);
 
 		Array.Resize(ref DrawData, Width * Height * 3);
 
 		Array.Resize(ref Cells, Width * Height);
-
-		Array.Resize(ref AliveCount, ChunkWidth * ChunkHeight);
-		Array.Resize(ref AwakeChunk, ChunkWidth * ChunkHeight);
-		Array.Resize(ref ShouldAwakenChunk, ChunkWidth * ChunkHeight);
-		Array.Resize(ref ChunkUpdated, ChunkWidth * ChunkHeight);
-
-		Array.Fill<bool>(ChunkUpdated, true); // Process all chunks on the first frame
 	}
 
 	// Advances the simulation
@@ -96,7 +67,7 @@ public partial class SandSimulation : TextureRect
 		List<int> evenChunkRows = new List<int>();
 		List<int> oddChunkRows = new List<int>();
 
-		for (int chunkRow = 0; chunkRow < ChunkHeight; chunkRow++)
+		for (int chunkRow = 0; chunkRow < Chunks.Height; chunkRow++)
 		{
 			if (chunkRow % 2 == 0)
 			{
@@ -106,7 +77,7 @@ public partial class SandSimulation : TextureRect
 			}
 		}
 
-		Array.Fill<bool>(ShouldAwakenChunk, false);
+		Array.Fill<bool>(Chunks.ShouldAwaken, false);
 		GlobalRowOffset = Rand.Next(0, MaxRowOffset + 1); // Generate a random row offset to apply to threaded chunk processing
 		GlobalRowOffset *= (Randf() < 0.5 ? -1 : 1); // 50/50 to make the offset positive or negative
 
@@ -114,24 +85,24 @@ public partial class SandSimulation : TextureRect
 		// Process all even rows, then all odd rows to prevent overlapping attempts at cell access
 
 		//GD.Print("_PROCESS - Processing even chunks");
-		// Parallel.ForEach(evenChunkRows, chunkRow => ThreadProcess(chunkRow));
-		foreach (int chunkRow in evenChunkRows) ThreadProcess(chunkRow);
+		Parallel.ForEach(evenChunkRows, chunkRow => ThreadProcess(chunkRow));
+		// foreach (int chunkRow in evenChunkRows) ThreadProcess(chunkRow);
 		// GD.Print("_PROCESS - Even chunks complete");
 
 		// GD.Print("_PROCESS - Processing odd chunks");
-		// Parallel.ForEach(oddChunkRows, chunkRow => ThreadProcess(chunkRow));
-		foreach (int chunkRow in oddChunkRows) ThreadProcess(chunkRow);
+		Parallel.ForEach(oddChunkRows, chunkRow => ThreadProcess(chunkRow));
+		// foreach (int chunkRow in oddChunkRows) ThreadProcess(chunkRow);
 		// GD.Print("_PROCESS - Odd chunks complete");
 
-		for (int i = 0; i < AwakeChunk.Length; i++) // Iterate through all of the chunks
+		for (int i = 0; i < Chunks.WakeTime.Length; i++) // Iterate through all of the chunks
 		{
-			if (ShouldAwakenChunk[i]) // If the chunk should be awakened...
+			if (Chunks.ShouldAwaken[i]) // If the chunk should be awakened...
 			{
-				AwakeChunk[i] = 2; // ...set it to process for an extra two frames 
+				Chunks.WakeTime[i] = 2; // ...set it to process for an extra two frames 
 			}
 			else
 			{
-				AwakeChunk[i] = (byte)Math.Max(0, AwakeChunk[i] - 1); // Otherwise subtract one from the number of extra frames left to process or keep it at zero
+				Chunks.WakeTime[i] = (byte)Math.Max(0, Chunks.WakeTime[i] - 1); // Otherwise subtract one from the number of extra frames left to process or keep it at zero
 			}
 		}
 
@@ -152,31 +123,31 @@ public partial class SandSimulation : TextureRect
 		// GD.Print("THREADPROCESS - Beginning queued task at chunk row " + chunkRow + " in thread " + Thread.CurrentThread.ManagedThreadId);
 
 		List<int> ParticleOrder = new List<int>();
-		for (int i = 0; i < ChunkSize * ChunkSize; i++)
+		for (int i = 0; i < Chunks.ChunkSize * Chunks.ChunkSize; i++)
 		{
 			ParticleOrder.Add(i);
 		}
 
-		for (int i = chunkRow * ChunkWidth; i < (chunkRow + 1) * ChunkWidth; i++)
+		for (int i = chunkRow * Chunks.Width; i < (chunkRow + 1) * Chunks.Width; i++)
 		{
-			if (AliveCount[i] == 0 || (AwakeChunk[i] == 0 && Randf() > AwakenChance))
+			if (Chunks.CellCount[i] == 0 || (Chunks.WakeTime[i] == 0 && Randf() > Chunks.AwakenChance))
 			{
 				continue;
 			}
 
-			int RowOffset = i / ChunkWidth * ChunkSize + GlobalRowOffset;
-			int ColOffset = i % ChunkWidth * ChunkSize;
+			int RowOffset = i / Chunks.Width * Chunks.ChunkSize + GlobalRowOffset;
+			int ColOffset = i % Chunks.Width * Chunks.ChunkSize;
 			// Shuffle the particle order to avoid artifacts
 			ParticleOrder = ParticleOrder.OrderBy(i => Rand.Next()).ToList();
 
 			foreach (int j in ParticleOrder)
 			{
-				int row = j / ChunkSize + RowOffset;
+				int row = j / Chunks.ChunkSize + RowOffset;
 				if (row < 0 || row >= Height)
 				{
 					continue;
 				}
-				int col = j % ChunkSize + ColOffset;
+				int col = j % Chunks.ChunkSize + ColOffset;
 				ElementList.Elements[Cells[row * Width + col]].Process(this, row, col);
 			}
 		}
@@ -225,6 +196,9 @@ public partial class SandSimulation : TextureRect
 	// Determine if the two elements could be swapped
 	public bool IsSwappable(int row, int col, int row2, int col2)
 	{
+		if (row2 < 0) { // If the element wants to fly off the top of the screen, let it!
+			return true;
+		}
 		if (!InBounds(row, col) || !InBounds(row2, col2))
 		{
 			return false;
@@ -242,11 +216,15 @@ public partial class SandSimulation : TextureRect
 	}
 
 	// Attempt to swap the elements at the two specified cells if the first cell has a higher density
+	// By calling SetCell, this will awaken chunks
 	public void MoveAndSwap(int row, int col, int row2, int col2)
 	{
-		if (!InBounds(row, col) || !InBounds(row2, col2))
+		if (row2 < 0) { // If the element is asking to be moved off the top of the screen, delete it!
+			SetCell(row, col, 0);
+		}
+		if (!InBounds(row, col) || !InBounds(row2, col2) || (row == row2 && col == col2))
 		{
-			return;
+			return; // Do not proceed if either coordinate is out of bounds, or they are exactly the same
 		}
 		if (GetCell(row, col) == 2 || GetCell(row2, col2) == 2)
 		{
@@ -267,45 +245,55 @@ public partial class SandSimulation : TextureRect
 		return Cells[row * Width + col];
 	}
 
+	// CHUNKING METHODS
+
 	private int GetChunkIndex(int row, int col)
 	{
 		if (!InBounds(row, col)) return 0;
 
-		int index = row / ChunkSize * ChunkWidth + col / ChunkSize;
-		if (index > ChunkWidth * ChunkHeight) return 0;
+		int index = row / Chunks.ChunkSize * Chunks.Width + col / Chunks.ChunkSize;
+		if (index > Chunks.Width * Chunks.Height) return 0;
 
 		return index;
 	}
 
+	public void DontSleepNextFrame(int row, int col)
+	{
+		if (Chunks.WakeTime[GetChunkIndex(row, col)] <= 1)
+		{
+			Chunks.WakeTime[GetChunkIndex(row, col)]++;
+		}
+	}
+
 	private void AwakenChunk(int row, int col)
 	{
-		ShouldAwakenChunk[GetChunkIndex(row, col)] = true;
-		int chunkRow = row % ChunkSize;
-		int chunkCol = col % ChunkSize;
+		Chunks.ShouldAwaken[GetChunkIndex(row, col)] = true;
+		int chunkRow = row % Chunks.ChunkSize;
+		int chunkCol = col % Chunks.ChunkSize;
 
-		// If we are awakening a chunk from a pixel at any of the edges of a chunk
+		// If we are awakening a chunk from a cell at any of the edges of a chunk
 		// We must also awaken the adjacent chunks
 		if (row > 0 && chunkRow == 0)
 		{
-			ShouldAwakenChunk[GetChunkIndex(row - 1, col)] = true;
+			Chunks.ShouldAwaken[GetChunkIndex(row - 1, col)] = true;
 		}
-		if (row < Height - 1 && chunkRow == ChunkSize - 1)
+		if (row < Height - 1 && chunkRow == Chunks.ChunkSize - 1)
 		{
-			ShouldAwakenChunk[GetChunkIndex(row + 1, col)] = true;
+			Chunks.ShouldAwaken[GetChunkIndex(row + 1, col)] = true;
 		}
 		if (col > 0 && chunkCol == 0)
 		{
-			ShouldAwakenChunk[GetChunkIndex(row, col - 1)] = true;
+			Chunks.ShouldAwaken[GetChunkIndex(row, col - 1)] = true;
 		}
-		if (row < Width - 1 && chunkCol == ChunkSize - 1)
+		if (row < Width - 1 && chunkCol == Chunks.ChunkSize - 1)
 		{
-			ShouldAwakenChunk[GetChunkIndex(row, col + 1)] = true;
+			Chunks.ShouldAwaken[GetChunkIndex(row, col + 1)] = true;
 		}
 	}
 
 	public void SetCell(int row, int col, int type)
 	{
-		if (GetCell(row, col) == 2 && type != 0)
+		if (GetCell(row, col) == 2 && type != 0) // Only air can replace a wall, only called by erasing
 		{
 			return;
 		}
@@ -315,14 +303,14 @@ public partial class SandSimulation : TextureRect
 		int oldType = GetCell(row, col);
 		Cells[row * Width + col] = type;
 
-		ChunkUpdated[GetChunkIndex(row, col)] = true;
+		Chunks.Updated[GetChunkIndex(row, col)] = true;
 		if (oldType == 0 && type != 0)
 		{
-			AliveCount[GetChunkIndex(row, col)]++;
+			Chunks.CellCount[GetChunkIndex(row, col)]++;
 		}
 		else if (oldType != 0 && type == 0)
 		{
-			AliveCount[GetChunkIndex(row, col)]--;
+			Chunks.CellCount[GetChunkIndex(row, col)]--;
 		}
 	}
 
@@ -332,7 +320,7 @@ public partial class SandSimulation : TextureRect
 		SetCell(row, col, type);
 		
 		// Tell the new cell to process for at least one frame
-		AwakeChunk[GetChunkIndex(row, col)] = 1;
+		Chunks.WakeTime[GetChunkIndex(row, col)] = 1;
 	}
 
 	public int GetWidth() { return Width; }

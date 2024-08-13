@@ -19,9 +19,9 @@ public partial class Wall : Static
 
 	// RENDERING VARIABLES
 
-	byte r_val = 212;
-	byte g_val = 212;
-	byte b_val = 212;
+	byte r_val = 112;
+	byte g_val = 109;
+	byte b_val = 100;
 
 	public override byte[] GetColor
 	{
