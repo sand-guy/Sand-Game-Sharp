@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Wall : Static
+public partial class Wood : Static
 {
 	// Statics do not implement a Process function!
 
@@ -19,6 +19,10 @@ public partial class Wall : Static
 
 	// RENDERING VARIABLES
 
-	public override byte[] A_Color { get { return new byte[] {112, 109, 100}; } }
-	public override byte[] B_Color { get { return new byte[] {90, 90, 90}; } }
+	byte r_val = 110;
+	byte g_val = 77;
+	byte b_val = 34;
+
+	public override byte[] A_Color { get { return new byte[] {110, 77, 34}; } }
+	public override byte[] B_Color { get { return new byte[] {84, 58, 24}; } }
 }

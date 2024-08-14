@@ -3,38 +3,38 @@ using System;
 
 public partial class Smoke : Gas
 {
-	// The number of times the particle will attempt to spread out horizontally during a given frame, if it can't move up
-	int Dispersion = 4;
+	// Properties are explained in the parent class
+	int Dispersion = 3;
+	float Volatility = 0.22f;
+	float UpwardPreference = 0.8f;
 
-	// The percent chance to apply a completely random movement to the particle
-	float Volatility = 0.1f;
+	// Percent chance to disappear during a frame
+	float Dissipation = 0.0066f;
 
 	// IMPLEMENT PROCESS FUNCTION
 	public override void Process(SandSimulation sim, int row, int col)
-	{
-		base.GasProcess(sim, row, col, Volatility, Dispersion);
+	{	
+		if (sim.Randf() < Dissipation) {
+			sim.SetCell(row, col, new CellData(sim, 0));
+			return;
+		}
+		GasProcess(sim, row, col, Volatility, Dispersion, UpwardPreference);
 	}
 
 	// PHYSICS VARIABLES
 	
-	public override double GetDensity
+	public override double Density
 	{
 		get { return 0.2; }
 	}
 
-	public override bool GetFlammable
+	public override bool Burning
 	{
 		get { return false; } 
 	}
 
 	// RENDERING VARIABLES
 
-	byte r_val = 214;
-	byte g_val = 214;
-	byte b_val = 214;
-
-	public override byte[] GetColor
-	{
-		get { return new byte[3] { r_val, g_val, b_val }; }
-	}
+	public override byte[] A_Color { get { return new byte[] {214, 214, 214}; } }
+	public override byte[] B_Color { get { return new byte[] {200, 200, 200}; } }
 }

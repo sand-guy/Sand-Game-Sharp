@@ -11,24 +11,16 @@ public partial class Air : Gas
 
 	// PHYSICS VARIABLES
 	
-	public override double GetDensity
+	public override double Density
 	{
 		get { return 0.0; }
 	}
 
-	public override bool GetFlammable
+	public override bool Burning
 	{
 		get { return false; } 
 	}
 
-	// RENDERING VARIABLES
-
-	byte r_val = 70;
-	byte g_val = 70;
-	byte b_val = 70;
-
-	public override byte[] GetColor
-	{
-		get { return new byte[3] { r_val, g_val, b_val }; }
-	}
+	public override byte[] A_Color { get { return null; } }
+	public override byte[] B_Color { get { return null; } }
 }

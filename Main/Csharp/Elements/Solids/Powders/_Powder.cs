@@ -10,10 +10,10 @@ public abstract partial class Powder : Solid
 	{
 		bool down = sim.IsSwappable(row, col, row + 1, col);
 
-		if (down) {
+		if (down) { // Always attempt to move straight down
 			sim.MoveAndSwap(row, col, row + 1, col);
 			return;
-		} else if (sim.Randf() >= powderSlowing) { // After trying to move straight down, there's a chance not to move further
+		} else if (sim.Randf() >= powderSlowing) { // powderSlowing can only stop the powder from moving diagonally in a given frame
 			sim.DontSleepNextFrame(row, col); // If the powder was not allowed to move this frame, make sure its chunk is not put to sleep for the next frame to avoid artifacts
 			return;
 		}

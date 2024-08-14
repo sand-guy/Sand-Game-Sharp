@@ -6,7 +6,10 @@ public abstract partial class Gas : Element
 	// Default behavior for a gas that floats up and away, disappearing after it reaches the top of the simulation
 	// Call this within the overriding Process method of the inherting Element to utilize
 	// Or don't! This is just an inherited default that gets used by Smoke
-	public void GasProcess(SandSimulation sim, int row, int col, float volatility, int dispersion)
+	// Volatility is a chance to move randomly, instead of attempting to move up
+	// Dispersion is the number of time the element will attempt to move horizontally
+	// upwardPreference is the percent chance that upward movement will be called as the preferential first
+	public void GasProcess(SandSimulation sim, int row, int col, float volatility, int dispersion, float upwardPreference)
 	{
 		if (volatility >= sim.Randf()) // Random chance to attempt a move into any of the 8 nearby cells instead of following normal logic
 		{
@@ -49,6 +52,10 @@ public abstract partial class Gas : Element
 		int newRow = row;
 		int newCol = col;
 
+		if (sim.Randf() > upwardPreference) {
+			return;
+		}
+
 		// First attempt sand movement, flipped vertically
 		if (up) {
 			newRow--; // Move up if possible
@@ -82,7 +89,7 @@ public abstract partial class Gas : Element
 
 	// For any element inheriting Gas, return 2 for GetState
 	// This indicates that it's a gas for physics calculations
-	public override int GetState
+	public override int State
 	{
 		get { return 2; }
 	}

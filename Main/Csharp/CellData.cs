@@ -1,37 +1,34 @@
 using Godot;
 using System;
 
-public class CellData
+
+public struct CellData
 {
-	private int simulationWidth;
-	private int simulationHeight;
+	float colorOffset;
 
-	private int[] cellType;
-	private int[] cellTemp;
+	int type;
 
-	public CellData(int newWidth, int newHeight)
+	public CellData(SandSimulation sim)
 	{
-		simulationWidth = newWidth;
-		simulationHeight = newHeight;
-
-		Array.Resize(ref cellType, simulationWidth * simulationHeight);
-		Array.Resize(ref cellTemp, simulationWidth * simulationHeight);
+		type = 0;
+		colorOffset = sim.Randf();
 	}
 
-	private int getCellIndex(int row, int col)
-	{ 
-		return row * simulationWidth + col;
-	}
-
-	public int getType(int row, int col)
+	public CellData(SandSimulation sim, int newType)
 	{
-		return cellType[getCellIndex(row, col)];
+		type = newType;
+		colorOffset = sim.Randf();
 	}
 
-	public void setType(int row, int col, int type)
+	public float ColorOffset
 	{
-		cellType[getCellIndex(row, col)] = type;
+		get { return colorOffset; }
 	}
 
+	public int Type
+	{
+		get { return type; }
 
+		set { type = value; }
+	}
 }

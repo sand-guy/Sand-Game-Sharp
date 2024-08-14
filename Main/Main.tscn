@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bgcqqh0aymj7q"]
+[gd_scene load_steps=8 format=3 uid="uid://bgcqqh0aymj7q"]
 
-[ext_resource type="Script" path="res://Main/Csharp/SandSimulation.cs" id="1_1yxoy"]
+[ext_resource type="Script" path="res://Main/main.gd" id="1_ovr8i"]
+[ext_resource type="Script" path="res://Main/canvas.gd" id="2_h5wvs"]
 [ext_resource type="Script" path="res://Main/UI/Debug/fps_counter.gd" id="3_7f3sc"]
 [ext_resource type="Script" path="res://Main/painter.gd" id="4_0puh6"]
 [ext_resource type="Script" path="res://Main/UI/element_selector.gd" id="4_esoim"]
@@ -8,15 +9,16 @@
 [ext_resource type="Script" path="res://Main/UI/Debug/cell_counter.gd" id="6_ic8vw"]
 
 [node name="Main" type="Node"]
+script = ExtResource("1_ovr8i")
 
-[node name="SandSimulation" type="TextureRect" parent="."]
+[node name="Canvas" type="TextureRect" parent="."]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_1yxoy")
+script = ExtResource("2_h5wvs")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -29,7 +31,7 @@ offset_bottom = 20.0
 grow_horizontal = 0
 script = ExtResource("4_esoim")
 
-[node name="VSlider" type="VSlider" parent="CanvasLayer"]
+[node name="Size_Selector" type="VSlider" parent="CanvasLayer"]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -65,5 +67,5 @@ script = ExtResource("4_0puh6")
 [connection signal="element_changed" from="CanvasLayer/Element_Selector" to="Painter" method="_on_element_selector_element_changed"]
 [connection signal="item_selected" from="CanvasLayer/Element_Selector" to="CanvasLayer/Element_Selector" method="_on_item_selected"]
 [connection signal="toggled" from="CanvasLayer/Element_Selector" to="CanvasLayer/Element_Selector" method="_on_toggled"]
-[connection signal="drag_ended" from="CanvasLayer/VSlider" to="CanvasLayer/VSlider" method="_on_drag_ended"]
-[connection signal="drag_started" from="CanvasLayer/VSlider" to="CanvasLayer/VSlider" method="_on_drag_started"]
+[connection signal="drag_ended" from="CanvasLayer/Size_Selector" to="CanvasLayer/Size_Selector" method="_on_drag_ended"]
+[connection signal="drag_started" from="CanvasLayer/Size_Selector" to="CanvasLayer/Size_Selector" method="_on_drag_started"]

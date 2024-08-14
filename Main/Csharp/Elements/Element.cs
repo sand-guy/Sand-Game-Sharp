@@ -29,41 +29,70 @@ abstract public partial class Element : RefCounted
 	// Things that are static cannot be replaced, for any reason
 	// Only things that inherit Static will return true for this property
 	// No need to touch this, unless you wanna make something static temporarily
-	public virtual bool GetStatic
+	public virtual bool IsStatic
 	{
 		get { return false; } 
 	}
 
-	// ABSTRACT PROPERTIES
+	// Whether or not this block is burning, and thus if it can turn nearby blocks into fire
+	public virtual bool Burning
+	{
+		get { return false; }
+	}
+
+	// How flammable this block is 
+
+	// ABSTRACT PROPERTIES - NO DEFAULT, SET PER ELEMENT
 
 	// Get the physical state of the element: solid, liquid or gas
 	// 0 = SOLID
 	// 1 = LIQUID
 	// 2 = GAS
-	public abstract int GetState
+	public abstract int State
 	{
 		get;
 	}
 
 	// Density can be as low as zero, such as for air, and as high as an integer can store
-	public abstract double GetDensity
-	{
-		get;
-	}
-
-	// Flammable things may burn, have fire spread to them, and be destroyed by it
-	// True = flammable, let it burn!
-	// False = nonflammable, will never burn!
-	public abstract bool GetFlammable
+	public abstract double Density
 	{
 		get;
 	}
 
 	// RENDERING VARIABLES
 
-	// Returns three values in the array, [0] = r [1] = g [2] = b | 8-bit color depth
-	public abstract byte[] GetColor
+	public abstract byte[] A_Color { get; }
+	public abstract byte[] B_Color { get; }
+
+	byte[][] ColorOffsetPregen;
+
+	// Returns the A color as a fallback
+	// Three values in the array, [0] = r [1] = g [2] = b
+	// 8-bit color depth
+	public byte[] Color
 	{
-		get;
+		get { return A_Color; }
+	}
+
+	public void GenerateOffsets()
+	{
+		ColorOffsetPregen = new byte[256][];
+
+		for (int i = 0; i <= 255; i++)
+		{
+			byte[] newOffsetPregen = new byte[3];
+			float colorOffset = (float)i / 255f;
+			newOffsetPregen[0] = (byte) (A_Color[0] + (B_Color[0] - A_Color[0]) * colorOffset);
+			newOffsetPregen[1] = (byte) (A_Color[1] + (B_Color[1] - A_Color[1]) * colorOffset);
+			newOffsetPregen[2] = (byte) (A_Color[2] + (B_Color[2] - A_Color[2]) * colorOffset);
+
+			ColorOffsetPregen[i] = newOffsetPregen;
+		}
+	}
+
+	public byte[] LerpColor(float colorOffset)
+	{
+		int offsetIndex = (int)(colorOffset * 255);
+		return ColorOffsetPregen[offsetIndex];
 	}
 }

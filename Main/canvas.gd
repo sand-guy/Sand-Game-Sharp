@@ -1,12 +1,13 @@
 extends TextureRect
+
 class_name Canvas
 
 func _ready() -> void:
 	pass
 
 func repaint() -> void:
-	var width: int = CommonReference.main.sim.GetWidth()
-	var height: int = CommonReference.main.sim.GetHeight()
+	var width: int = CommonReference.main.sim.Width
+	var height: int = CommonReference.main.sim.Height
 	
 	var data: PackedByteArray = CommonReference.main.sim.GetColorImage();
 	

@@ -18,7 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 CommonReference="*res://Main/Autoload/common_reference.gd"
-Settings="*res://Main/settings.gd"
+Settings="*res://Main/Autoload/settings.gd"
 
 [display]
 

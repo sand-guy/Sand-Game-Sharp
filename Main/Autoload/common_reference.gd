@@ -1,4 +1,5 @@
 extends Node
 
-@onready var sim: SandSimulation = get_tree().get_root().get_node("Main/%SandSimulation")
-@onready var painter: Painter = get_tree().get_root().get_node("Main/%Painter");
+@onready var main: Main = get_tree().get_root().get_node("Main")
+@onready var canvas: Canvas = get_tree().get_root().get_node("Main/%Canvas")
+@onready var painter: Painter = get_tree().get_root().get_node("Main/%Painter")

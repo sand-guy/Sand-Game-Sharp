@@ -21,22 +21,22 @@ signal mouse_pressed(start, end)
 
 func _ready() -> void:
 	await get_tree().get_root().ready
-	sim = CommonReference.sim # Less verbose sim access
+	sim = CommonReference.main.sim # Less verbose sim access
 	
 	var elements: Array = ElementList.GetElementsArray()
 	
 	for type in elements:
 		type = elements.find(type)
-		if elements[type].GetState == 0 and elements[type].GetStatic == false:
+		if elements[type].State == 0 and elements[type].IsStatic == false:
 			is_powder[type] = true
-		elif elements[type].GetState == 1:
+		elif elements[type].State == 1:
 			is_liquid[type] = true
-		elif elements[type].GetState == 2 and type != 0:
+		elif elements[type].State == 2 and type != 0:
 			is_gas[type] = true
 	
 	mouse_pressed.connect(_on_mouse_pressed)
 
-func _process(delta) -> void:
+func painter_process() -> void:
 	if lock_off:
 		next_release_invalid = true
 		press_released = true
@@ -73,10 +73,18 @@ func draw_circle(x: float, y: float, radius: float) -> void:
 	for row in range(-radius, radius + 1):
 		for col in range(-radius, radius + 1):
 			if row*row + col*col < radius*radius:
-				draw_pixel(row + y, col + x)
+				draw_pixel(int(row + y), int(col + x))
 
 # Here we can control what can be drawn over what later on
-func draw_pixel(row: float, col: float) -> void:
+# TODO - Why the fuck is this so slow goddamn
+# Maybe it shouldn't get called 10,000 times in one frame...
+func draw_pixel(row: int, col: int) -> void:
+	if not sim.InBounds(row, col):
+		return
+	
+	if sim.GetCellType(row, col) == selected_element:
+		return
+	
 	# Powders must have some random noise in order to prevent stacking behavior
 	if selected_element in is_powder and randf() > 0.15:
 		return
@@ -87,12 +95,7 @@ func draw_pixel(row: float, col: float) -> void:
 	if selected_element in is_gas and randf() > 0.06:
 		return
 	
-	var y: int = roundi(row)
-	var x: int = roundi(col)
-	
-	if not sim.InBounds(y, x):
-		return
-	sim.DrawCell(int(row), int(col), selected_element)
+	sim.DrawCell(row, col, selected_element)
 
 
 func _on_element_selector_element_changed(new_element):

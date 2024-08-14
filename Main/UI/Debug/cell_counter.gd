@@ -14,9 +14,9 @@ func _process(delta) -> void:
 	if time_elapsed > refresh_interval:
 		time_elapsed = 0
 		if all_elements:
-			last_cell_count = CommonReference.sim.DebugParticleCount(0)
+			last_cell_count = CommonReference.main.sim.DebugParticleCount(0)
 		else:
-			last_cell_count = CommonReference.sim.DebugParticleCount(element_type)
+			last_cell_count = CommonReference.main.sim.DebugParticleCount(element_type)
 		self.clear()
 		var cell_count: String = str(last_cell_count) + " cells"
 		self.add_text(cell_count)

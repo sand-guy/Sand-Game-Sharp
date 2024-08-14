@@ -28,8 +28,15 @@ public partial class ElementList : RefCounted
 		elements.Insert(0, new Air());
 		elements.Insert(1, new Sand());
 		elements.Insert(2, new Wall());
-		elements.Insert(3, new Water());
-		elements.Insert(4, new Smoke());
+		elements.Insert(3, new Wood());
+		elements.Insert(4, new Water());
+		elements.Insert(5, new Fire());
+		elements.Insert(6, new Smoke());
+
+		for (int i = 1; i < elements.Count; i++) // Skip air, no need to generate offsets for it
+		{
+			elements[i].GenerateOffsets();
+		}
 	}
 
 	// Accessor method for GDScript

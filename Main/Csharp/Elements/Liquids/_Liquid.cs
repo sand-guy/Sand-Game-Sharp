@@ -48,7 +48,7 @@ public abstract partial class Liquid : Element
 		}
 	}
 
-	public override int GetState
+	public override int State
 	{
 		get { return 1; }
 	}

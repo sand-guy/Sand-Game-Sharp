@@ -6,7 +6,7 @@ public class Chunks
 	// Dimension of each chunk
 	public int ChunkSize = 16;
 	// The chance that a sleeping chunk can randomly reawaken for a frame
-	public float AwakenChance = 0.16f;
+	public float AwakenChance = 0.146f;
 
 	// Simulation dimensions in chunks
 	// Since resizing is not currently supported, this is calculated just once in the constructor of this class
