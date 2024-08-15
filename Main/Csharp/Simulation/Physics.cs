@@ -84,4 +84,85 @@ public static class Physics
 			sim.MoveAndSwap(row, col, row + 1, col + 1);
 		}
 	}
+
+	
+	// Default behavior for a gas that floats up and away, disappearing after it reaches the top of the simulation
+	// Volatility is a chance to move randomly, instead of attempting to move up
+	// Dispersion is the number of time the element will attempt to move horizontally
+	// upwardPreference is the percent chance that upward movement will be called as the preferential first
+	public static void GasProcess(SandSimulation sim, int row, int col, float volatility, int dispersion, float upwardPreference)
+	{
+		if (volatility >= sim.Randf()) // Random chance to attempt a move into any of the 8 nearby cells instead of following normal logic
+		{
+			
+			int colChange = 0;
+			switch (Math.Ceiling(sim.Randf() * 3)) {
+				case 1:
+					colChange++;
+					break;
+				case 2:
+					colChange--;
+					break;
+				default:
+					break;
+			}
+
+			int rowChange = 0;
+			switch (Math.Ceiling(sim.Randf() * (3 - (rowChange == 0 ? 1 : 0)))) { // If no rowChange, force a column change
+				case 1:
+					rowChange++;
+					break;
+				case 2:
+					rowChange--;
+					break;
+				default:
+					break;
+			}
+			
+			// If we can can apply this random movement, don't try to do anything else this frame
+			if (sim.IsSwappable(row, col, row + rowChange, col + colChange)) {
+				sim.MoveAndSwap(row, col, row + rowChange, col + colChange);
+				return;
+			}
+		}
+
+		bool upLeft = sim.IsSwappable(row, col, row - 1, col - 1);
+		bool up = sim.IsSwappable(row, col, row - 1, col);
+		bool upRight = sim.IsSwappable(row, col, row - 1, col + 1);
+
+		int newRow = row;
+		int newCol = col;
+
+		if (sim.Randf() > upwardPreference) {
+			return;
+		}
+
+		// First attempt sand movement, flipped vertically
+		if (up) {
+			newRow--; // Move up if possible
+		} else if (upLeft && upRight) {
+			newRow--;
+			newCol += (sim.Randf() < 0.5 ? 1 : -1); // Pick randomly left or right if both are an option
+		} else if (upLeft) {
+			newRow--;
+			newCol--;
+		} else if (upRight) {
+			newRow--;
+			newCol++;
+		} else { // If we can't move up or diagonal, attempt to move horizontally
+			int sign = (sim.Randf() < 0.5 ? 1 : -1); // 50% chance to attempt moves left or right this frame
+			int colChange = 0;
+			for (int i = 0; i < dispersion; i++) // Attempt to move horizontally "dispersion" times
+			{
+				colChange += sign; // Add one horizontal movement
+				if (!sim.IsSwappable(row, col, row, col + colChange)) { // If we can't make the current horizontal move, undo it and stop trying to move further
+					colChange -= sign;
+					break;
+				}
+			}
+			newCol = col + colChange; // Apply the horizontal changes 
+		}
+
+		sim.MoveAndSwap(row, col, newRow, newCol);
+	}
 }

@@ -19,7 +19,7 @@ public partial class Fire : Gas
 			return;
 		}
 
-		GasProcess(sim, row, col, Volatility, Dispersion, UpwardPreference);
+		Physics.GasProcess(sim, row, col, Volatility, Dispersion, UpwardPreference);
 	}
 
 	// PHYSICS VARIABLES

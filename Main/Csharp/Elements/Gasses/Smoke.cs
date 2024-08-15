@@ -18,7 +18,7 @@ public partial class Smoke : Gas
 			sim.SetCell(row, col, new CellData(sim, 0));
 			return;
 		}
-		GasProcess(sim, row, col, Volatility, Dispersion, UpwardPreference);
+		Physics.GasProcess(sim, row, col, Volatility, Dispersion, UpwardPreference);
 	}
 
 	// PHYSICS VARIABLES
