@@ -3,8 +3,8 @@ using System;
 
 public partial class Sand : Powder
 {
-	// The percent chance that the particle will have diagonal movement applied, if possible
-	float PowderSlowing = 1.0f;
+	// The percent chance that the particle will not have diagonal movement applied, even if possible
+	float PowderSlowing = 0.0f;
 
 	// Sand implements the default PowderProcess for its Process function
 	public override void Process(SandSimulation sim, int row, int col)

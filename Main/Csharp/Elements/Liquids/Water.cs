@@ -6,7 +6,8 @@ public partial class Water : Liquid
 	// The number of times the particle will attempt to spread out horizontally during a given frame, if it can't move down
 	int Dispersion = 5;
 
-	// The percent chance that, even if it is possible, the cell will not move in a given frame
+	// The percent chance that, even if it is possible, the cell will not move in a given frame (other than directly down)
+	// TODO - Remove this? The effect isn't very good and it has to be set awkwardly high to have any noticeable effect because of how it operates
 	float Viscosity = 0.0f;
 
 	// Sand implements the default PowderProcess for its Process function

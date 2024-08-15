@@ -1,18 +1,13 @@
 using Godot;
-using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 [GlobalClass]
 public partial class SandSimulation : RefCounted
 {
-	// Background color, override for air (ID=0) to speed up rendering
+	// Background color, override for air (ID = 0) to speed up rendering
 	const byte BG_VAL_R = 70;
 	const byte BG_VAL_G = 70;
 	const byte BG_VAL_B = 70;
@@ -24,17 +19,15 @@ public partial class SandSimulation : RefCounted
 	private int Width = 400;
 	private int Height = 240;
 
-	// Contains the identity of all cells on the grid
-	// int[] Cells;
-
-	// Contains the identity of cells on the grid. A CellData is never destroyed, only swapped
-	// Mutable information:
-	// Immutable information: ColorOffset
+	// Contains the identity of cells on the grid.
+	// Mutable information: Type, what cell is contained within that CellData
+	// Immutable information: ColorOffset, generated once on instantiation
 	CellData[] Cells;
 
 	// Drawing data to be used to generate an image once per frame
 	byte[] DrawData;
 
+	// The chunk map, used for partitioning rendering tasks between threads
 	ChunkMap ChunkMap;
 
 	// MULTITHREADING VARIABLES
@@ -42,8 +35,12 @@ public partial class SandSimulation : RefCounted
 	// The random "row offset" (vertical shift) that will be applied each frame to the chunk processing to avoid artifacts along chunk borders
 	int GlobalRowOffset;
 	// The maximum row offset to use in a given frame, positive or negative
-	int MaxRowOffset = 12;
+	// TODO - Find out why this causes stuck particles if set too high (eg 12)!
+	//        This may indicate not all cells are being rendered every frame as intended!
+	// TODO - Test out chunk rendering that does not rely on rows, dirty rects may play into this
+	int MaxRowOffset = 2;
 
+	
 	int FrameCount = 0;
 
 	public SandSimulation()
@@ -54,47 +51,32 @@ public partial class SandSimulation : RefCounted
 
 		ChunkMap = new ChunkMap(Width, Height);
 
-		Array.Resize(ref DrawData, Width * Height * 3);
+		Array.Resize(ref DrawData, Width * Height * 3); // Must be 3x simulation size to store one byte per R/G/B channel
 
 		Array.Resize(ref Cells, Width * Height);
-		Array.Fill(Cells, new CellData(this));
+		Array.Fill(Cells, new CellData(this)); // Populate with CellData, this pregenerates color offsets
 
 		GetColorImage(); // Draw the first frame
 	}
 
-	// Advances the simulation
+	// Advances the simulation, call this from Main and then call GetColorImage
 	public void Step()
 	{
-		// Generate the chunk row indices to be used in the threaded simulation
-		List<int> evenChunkRows = new List<int>();
-		List<int> oddChunkRows = new List<int>();
-
-		for (int chunkRow = 0; chunkRow < ChunkMap.Height; chunkRow++)
-		{
-			if (chunkRow % 2 == 0)
-			{
-				evenChunkRows.Add(chunkRow);
-			} else {
-				oddChunkRows.Add(chunkRow);
-			}
-		}
-
 		// Fill the chunk arrays to awaken and redraw ChunkMap with false, they get populated during a frame
 		Array.Fill<bool>(ChunkMap.ShouldAwaken, false);
 		Array.Fill<bool>(ChunkMap.Updated, false);
 
-		GlobalRowOffset = Rand.Next(0, MaxRowOffset + 1); // Generate a random row offset to apply to threaded chunk processing
-		GlobalRowOffset *= (Randf() < 0.5 ? -1 : 1); // 50/50 to make the offset positive or negative
+		GlobalRowOffset = Rand.Next(0, MaxRowOffset + 1) * (Randf() < 0.5 ? -1 : 1); // Generate a random row offset (-MaxRowOffset to MaxRowOffset) to apply to threaded chunk processing
 
 		// Simulate the grid by giving threads a row of chunks to process
 		// Process all even rows, then all odd rows to prevent overlapping attempts at cell access
 
-		Parallel.ForEach(evenChunkRows, chunkRow => ThreadProcess(chunkRow));
-		Parallel.ForEach(oddChunkRows, chunkRow => ThreadProcess(chunkRow));
+		Parallel.ForEach(ChunkMap.EvenRows, chunkRow => ThreadProcess(chunkRow));
+		Parallel.ForEach(ChunkMap.OddRows, chunkRow => ThreadProcess(chunkRow));
 
 		// Debug, nonthreaded foreach statements to iterate over the rows sequentially
-		//foreach (int chunkRow in evenChunkRows) { ThreadProcess(chunkRow); }
-		//foreach (int chunkRow in oddChunkRows) { ThreadProcess(chunkRow); }
+		//foreach (int chunkRow in ChunkMap.EvenRows) { ThreadProcess(chunkRow); }
+		//foreach (int chunkRow in ChunkMap.OddRows) { ThreadProcess(chunkRow); }
 
 		for (int i = 0; i < ChunkMap.WakeTime.Length; i++) // Iterate through all of the chunks
 		{
@@ -145,7 +127,7 @@ public partial class SandSimulation : RefCounted
 		}
 	}
 
-	// A count of non-empty cells currently in the simulation
+	// A count of non-empty cells currently in the simulation, excluding walls
 	// Give a type of 0 to count all cells instead of just a given element type
 	public int DebugParticleCount(int type)
 	{
