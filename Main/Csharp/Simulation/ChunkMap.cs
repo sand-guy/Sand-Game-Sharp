@@ -1,7 +1,11 @@
 using Godot;
 using System;
 
-public class Chunks
+// The ChunkMap is used exclusively for coordinating and improving the performance of the physical simulation
+// CellData are stored in an array and hold more granular information about each cell
+// Cells don't know what chunk they're in  and chunks don't know what's in them (it doesn't even stay the same each frame)
+// Chunks are a fiction of how the game iterates through cells and decides what to process
+public class ChunkMap
 {
 	// Dimension of each chunk
 	public int ChunkSize = 16;
@@ -12,6 +16,11 @@ public class Chunks
 	// Since resizing is not currently supported, this is calculated just once in the constructor of this class
 	public int Width = 0;
 	public int Height = 0;
+
+	// TODO - These arrays all store the data that's used for chunks at the same indices,
+	//			Make a "Chunk" class that can hold this data to clean this up a bit in future
+	// TODO - Implement dirty rects to minimize the area within a chunk that needs to be rendered/simulated (these two things are tied together)
+	//          This may benefit from a larger chunk size
 
 	// Stores the number of non-empty cells within each chunk
 	// Could be a byte, but this would limit the maximum chunk size
@@ -24,7 +33,7 @@ public class Chunks
 	// TODO - Implement into drawing functions
 	public bool[] Updated; // ChunkUpdated
 
-	public Chunks(int simWidthCells, int simHeightCells)
+	public ChunkMap(int simWidthCells, int simHeightCells)
 	{
 		if (simWidthCells % ChunkSize != 0 || simHeightCells % ChunkSize != 0)
 		{

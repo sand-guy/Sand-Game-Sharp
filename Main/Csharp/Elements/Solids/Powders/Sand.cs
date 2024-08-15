@@ -9,7 +9,7 @@ public partial class Sand : Powder
 	// Sand implements the default PowderProcess for its Process function
 	public override void Process(SandSimulation sim, int row, int col)
 	{
-		PowderProcess(sim, row, col, PowderSlowing);
+		Physics.PowderProcess(sim, row, col, PowderSlowing);
 	}
 
 	// PHYSICS VARIABLES

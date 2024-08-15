@@ -12,7 +12,7 @@ public partial class Water : Liquid
 	// Sand implements the default PowderProcess for its Process function
 	public override void Process(SandSimulation sim, int row, int col)
 	{
-		LiquidProcess(sim, row, col, Dispersion, Viscosity);
+		Physics.LiquidProcess(sim, row, col, Dispersion, Viscosity);
 	}
 
 	// PHYSICS VARIABLES

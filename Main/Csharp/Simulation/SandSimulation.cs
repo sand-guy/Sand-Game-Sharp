@@ -35,7 +35,7 @@ public partial class SandSimulation : RefCounted
 	// Drawing data to be used to generate an image once per frame
 	byte[] DrawData;
 
-	Chunks Chunks;
+	ChunkMap ChunkMap;
 
 	// MULTITHREADING VARIABLES
 
@@ -52,7 +52,7 @@ public partial class SandSimulation : RefCounted
 
 		Rand = new Random();
 
-		Chunks = new Chunks(Width, Height);
+		ChunkMap = new ChunkMap(Width, Height);
 
 		Array.Resize(ref DrawData, Width * Height * 3);
 
@@ -69,7 +69,7 @@ public partial class SandSimulation : RefCounted
 		List<int> evenChunkRows = new List<int>();
 		List<int> oddChunkRows = new List<int>();
 
-		for (int chunkRow = 0; chunkRow < Chunks.Height; chunkRow++)
+		for (int chunkRow = 0; chunkRow < ChunkMap.Height; chunkRow++)
 		{
 			if (chunkRow % 2 == 0)
 			{
@@ -79,9 +79,9 @@ public partial class SandSimulation : RefCounted
 			}
 		}
 
-		// Fill the chunk arrays to awaken and redraw chunks with false, they get populated during a frame
-		Array.Fill<bool>(Chunks.ShouldAwaken, false);
-		Array.Fill<bool>(Chunks.Updated, false);
+		// Fill the chunk arrays to awaken and redraw ChunkMap with false, they get populated during a frame
+		Array.Fill<bool>(ChunkMap.ShouldAwaken, false);
+		Array.Fill<bool>(ChunkMap.Updated, false);
 
 		GlobalRowOffset = Rand.Next(0, MaxRowOffset + 1); // Generate a random row offset to apply to threaded chunk processing
 		GlobalRowOffset *= (Randf() < 0.5 ? -1 : 1); // 50/50 to make the offset positive or negative
@@ -96,15 +96,15 @@ public partial class SandSimulation : RefCounted
 		//foreach (int chunkRow in evenChunkRows) { ThreadProcess(chunkRow); }
 		//foreach (int chunkRow in oddChunkRows) { ThreadProcess(chunkRow); }
 
-		for (int i = 0; i < Chunks.WakeTime.Length; i++) // Iterate through all of the chunks
+		for (int i = 0; i < ChunkMap.WakeTime.Length; i++) // Iterate through all of the chunks
 		{
-			if (Chunks.ShouldAwaken[i]) // If the chunk should be awakened...
+			if (ChunkMap.ShouldAwaken[i]) // If the chunk should be awakened...
 			{
-				Chunks.WakeTime[i] = 2; // ...set it to process for an extra two frames 
+				ChunkMap.WakeTime[i] = 2; // ...set it to process for an extra two frames 
 			}
 			else
 			{
-				Chunks.WakeTime[i] = (byte)Math.Max(0, Chunks.WakeTime[i] - 1); // Otherwise subtract one from the number of extra frames left to process or keep it at zero
+				ChunkMap.WakeTime[i] = (byte)Math.Max(0, ChunkMap.WakeTime[i] - 1); // Otherwise subtract one from the number of extra frames left to process or keep it at zero
 			}
 		}
 
@@ -114,31 +114,31 @@ public partial class SandSimulation : RefCounted
 	private void ThreadProcess(int chunkRow)
 	{
 		List<int> ParticleOrder = new List<int>();
-		for (int i = 0; i < Chunks.ChunkSize * Chunks.ChunkSize; i++)
+		for (int i = 0; i < ChunkMap.ChunkSize * ChunkMap.ChunkSize; i++)
 		{
 			ParticleOrder.Add(i);
 		}
 
-		for (int i = chunkRow * Chunks.Width; i < (chunkRow + 1) * Chunks.Width; i++)
+		for (int i = chunkRow * ChunkMap.Width; i < (chunkRow + 1) * ChunkMap.Width; i++)
 		{
-			if (Chunks.CellCount[i] == 0 || (Chunks.WakeTime[i] == 0 && Randf() > Chunks.AwakenChance))
+			if (ChunkMap.CellCount[i] == 0 || (ChunkMap.WakeTime[i] == 0 && Randf() > ChunkMap.AwakenChance))
 			{
 				continue;
 			}
 
-			int RowOffset = i / Chunks.Width * Chunks.ChunkSize + GlobalRowOffset;
-			int ColOffset = i % Chunks.Width * Chunks.ChunkSize;
+			int RowOffset = i / ChunkMap.Width * ChunkMap.ChunkSize + GlobalRowOffset;
+			int ColOffset = i % ChunkMap.Width * ChunkMap.ChunkSize;
 			// Shuffle the particle order to avoid artifacts
 			ParticleOrder = ParticleOrder.OrderBy(i => Rand.Next()).ToList();
 
 			foreach (int j in ParticleOrder)
 			{
-				int row = j / Chunks.ChunkSize + RowOffset;
+				int row = j / ChunkMap.ChunkSize + RowOffset;
 				if (row < 0 || row >= Height)
 				{
 					continue;
 				}
-				int col = j % Chunks.ChunkSize + ColOffset;
+				int col = j % ChunkMap.ChunkSize + ColOffset;
 
 				ElementList.Elements[Cells[row * Width + col].Type].Process(this, row, col);
 			}
@@ -278,17 +278,17 @@ public partial class SandSimulation : RefCounted
 	{
 		if (!InBounds(row, col)) return 0;
 
-		int index = row / Chunks.ChunkSize * Chunks.Width + col / Chunks.ChunkSize;
-		if (index > Chunks.Width * Chunks.Height) return 0;
+		int index = row / ChunkMap.ChunkSize * ChunkMap.Width + col / ChunkMap.ChunkSize;
+		if (index > ChunkMap.Width * ChunkMap.Height) return 0;
 
 		return index;
 	}
 
 	public void DontSleepNextFrame(int row, int col)
 	{
-		if (Chunks.WakeTime[GetChunkIndex(row, col)] <= 1)
+		if (ChunkMap.WakeTime[GetChunkIndex(row, col)] <= 1)
 		{
-			Chunks.WakeTime[GetChunkIndex(row, col)]++;
+			ChunkMap.WakeTime[GetChunkIndex(row, col)]++;
 		}
 	}
 
@@ -297,32 +297,32 @@ public partial class SandSimulation : RefCounted
 	//      ALWAYS CALL THIS!
 	private void AwakenChunk(int row, int col)
 	{
-		Chunks.ShouldAwaken[GetChunkIndex(row, col)] = true; // Wake up this chunk
-		Chunks.Updated[GetChunkIndex(row, col)] = true; // Rerender this chunk this frame
-		int chunkRow = row % Chunks.ChunkSize;
-		int chunkCol = col % Chunks.ChunkSize;
+		ChunkMap.ShouldAwaken[GetChunkIndex(row, col)] = true; // Wake up this chunk
+		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Rerender this chunk this frame
+		int chunkRow = row % ChunkMap.ChunkSize;
+		int chunkCol = col % ChunkMap.ChunkSize;
 
 		// If we are awakening a chunk from a cell at any of the edges of a chunk
 		// We must also awaken the adjacent chunks
 		if (row > 0 && chunkRow == 0)
 		{
-			Chunks.ShouldAwaken[GetChunkIndex(row - 1, col)] = true;
-			Chunks.Updated[GetChunkIndex(row - 1, col)] = true;
+			ChunkMap.ShouldAwaken[GetChunkIndex(row - 1, col)] = true;
+			ChunkMap.Updated[GetChunkIndex(row - 1, col)] = true;
 		}
-		if (row < Height - 1 && chunkRow == Chunks.ChunkSize - 1)
+		if (row < Height - 1 && chunkRow == ChunkMap.ChunkSize - 1)
 		{
-			Chunks.ShouldAwaken[GetChunkIndex(row + 1, col)] = true;
-			Chunks.Updated[GetChunkIndex(row + 1, col)] = true;
+			ChunkMap.ShouldAwaken[GetChunkIndex(row + 1, col)] = true;
+			ChunkMap.Updated[GetChunkIndex(row + 1, col)] = true;
 		}
 		if (col > 0 && chunkCol == 0)
 		{
-			Chunks.ShouldAwaken[GetChunkIndex(row, col - 1)] = true;
-			Chunks.Updated[GetChunkIndex(row, col - 1)] = true;
+			ChunkMap.ShouldAwaken[GetChunkIndex(row, col - 1)] = true;
+			ChunkMap.Updated[GetChunkIndex(row, col - 1)] = true;
 		}
-		if (row < Width - 1 && chunkCol == Chunks.ChunkSize - 1)
+		if (row < Width - 1 && chunkCol == ChunkMap.ChunkSize - 1)
 		{
-			Chunks.ShouldAwaken[GetChunkIndex(row, col + 1)] = true;
-			Chunks.Updated[GetChunkIndex(row, col + 1)] = true;
+			ChunkMap.ShouldAwaken[GetChunkIndex(row, col + 1)] = true;
+			ChunkMap.Updated[GetChunkIndex(row, col + 1)] = true;
 		}
 	}
 
@@ -335,18 +335,18 @@ public partial class SandSimulation : RefCounted
 
 		AwakenChunk(row, col);
 		
-		Chunks.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
+		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
 
 		CellData oldCell = GetCell(row, col);
 		Cells[row * Width + col] = newCell;
 
 		if (oldCell.Type == 0 && newCell.Type != 0)
 		{
-			Chunks.CellCount[GetChunkIndex(row, col)]++;
+			ChunkMap.CellCount[GetChunkIndex(row, col)]++;
 		}
 		else if (oldCell.Type != 0 && newCell.Type == 0)
 		{
-			Chunks.CellCount[GetChunkIndex(row, col)]--;
+			ChunkMap.CellCount[GetChunkIndex(row, col)]--;
 		}
 	}
 
@@ -359,18 +359,18 @@ public partial class SandSimulation : RefCounted
 
 		AwakenChunk(row, col);
 		
-		Chunks.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
+		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
 
 		int oldCellType = GetCell(row, col).Type;
 		Cells[row * Width + col].Type = type;
 
 		if (oldCellType == 0 && type != 0)
 		{
-			Chunks.CellCount[GetChunkIndex(row, col)]++;
+			ChunkMap.CellCount[GetChunkIndex(row, col)]++;
 		}
 		else if (oldCellType != 0 && type == 0)
 		{
-			Chunks.CellCount[GetChunkIndex(row, col)]--;
+			ChunkMap.CellCount[GetChunkIndex(row, col)]--;
 		}
 	}
 
@@ -391,7 +391,7 @@ public partial class SandSimulation : RefCounted
 		{
 			for (int col = 0; col < Width; col++)
 			{
-				if (!Chunks.Updated[GetChunkIndex(row, col)]) { // If the chunk was not updated this frame, leave the draw data as it was last frame
+				if (!ChunkMap.Updated[GetChunkIndex(row, col)]) { // If the chunk was not updated this frame, leave the draw data as it was last frame
 					continue;
 				}
 				int idx = (row * Width + col) * 3;

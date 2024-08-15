@@ -3,16 +3,28 @@
   "WorkspaceRootPath": "D:\\Godot\\Projects\\Sand Game Sharp 2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\sandsimulation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\sandsimulation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\simulation\\physics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\simulation\\physics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\chunks.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\chunks.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\solids\\powders\\sand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\solids\\powders\\sand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\solids\\powders\\_powder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\solids\\powders\\_powder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\liquids\\water.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\liquids\\water.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\element.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\element.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\liquids\\_liquid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\liquids\\_liquid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\gasses\\_gas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -25,26 +37,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\gasses\\fire.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\gasses\\fire.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\liquids\\water.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\liquids\\water.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\solids\\powders\\sand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\solids\\powders\\sand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\element.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elements\\element.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elementlist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\elementlist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\celldata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|solutionrelative:main\\csharp\\celldata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3896A4C8-16C0-4A92-B860-3F3847385083}|Sand Game Sharp 2.csproj|d:\\godot\\projects\\sand game sharp 2\\main\\csharp\\elements\\solids\\statics\\wood.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -62,19 +54,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 12,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Chunks.cs",
-              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Chunks.cs",
-              "RelativeDocumentMoniker": "Main\\Csharp\\Chunks.cs",
-              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Chunks.cs",
-              "RelativeToolTip": "Main\\Csharp\\Chunks.cs",
-              "ViewState": "AQIAABcAAAAAAAAAAAAQwAgAAAAiAAAA",
+              "DocumentIndex": 5,
+              "Title": "_Liquid.cs",
+              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Liquids\\_Liquid.cs",
+              "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Liquids\\_Liquid.cs",
+              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Liquids\\_Liquid.cs",
+              "RelativeToolTip": "Main\\Csharp\\Elements\\Liquids\\_Liquid.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T23:33:19.636Z",
+              "WhenOpened": "2024-08-15T00:08:18.107Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Physics.cs",
+              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Simulation\\Physics.cs",
+              "RelativeDocumentMoniker": "Main\\Csharp\\Simulation\\Physics.cs",
+              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Simulation\\Physics.cs",
+              "RelativeToolTip": "Main\\Csharp\\Simulation\\Physics.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAD0AAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-15T00:04:55.423Z",
               "EditorCaption": ""
             },
             {
@@ -85,27 +90,27 @@
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Solids\\Powders\\_Powder.cs",
               "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Solids\\Powders\\_Powder.cs",
               "RelativeToolTip": "Main\\Csharp\\Elements\\Solids\\Powders\\_Powder.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAA1AAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAABVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T23:23:18.252Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 1,
               "Title": "Sand.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Solids\\Powders\\Sand.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Solids\\Powders\\Sand.cs",
               "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Solids\\Powders\\Sand.cs",
               "RelativeToolTip": "Main\\Csharp\\Elements\\Solids\\Powders\\Sand.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAACAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T06:52:34.134Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 9,
               "Title": "Wood.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Solids\\Statics\\Wood.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Solids\\Statics\\Wood.cs",
@@ -117,7 +122,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 10,
               "Title": "Wall.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Solids\\Statics\\Wall.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Solids\\Statics\\Wall.cs",
@@ -129,20 +134,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
               "Title": "Water.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Liquids\\Water.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Liquids\\Water.cs",
               "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Liquids\\Water.cs",
               "RelativeToolTip": "Main\\Csharp\\Elements\\Liquids\\Water.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAACAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T06:51:45.812Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "_Gas.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Gasses\\_Gas.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Gasses\\_Gas.cs",
@@ -150,12 +155,11 @@
               "RelativeToolTip": "Main\\Csharp\\Elements\\Gasses\\_Gas.cs",
               "ViewState": "AQIAAB8AAAAAAAAAAAAgwA0AAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T06:51:40.517Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-14T06:51:40.517Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "Smoke.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Gasses\\Smoke.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Gasses\\Smoke.cs",
@@ -163,12 +167,11 @@
               "RelativeToolTip": "Main\\Csharp\\Elements\\Gasses\\Smoke.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T06:50:29.794Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-14T06:50:29.794Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "Fire.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Gasses\\Fire.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Gasses\\Fire.cs",
@@ -176,59 +179,19 @@
               "RelativeToolTip": "Main\\Csharp\\Elements\\Gasses\\Fire.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T06:46:35.996Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-14T06:46:35.996Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 4,
               "Title": "Element.cs",
               "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Element.cs",
               "RelativeDocumentMoniker": "Main\\Csharp\\Elements\\Element.cs",
               "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\Elements\\Element.cs",
               "RelativeToolTip": "Main\\Csharp\\Elements\\Element.cs",
-              "ViewState": "AQIAADIAAAAAAAAAAAAIwFwAAAAYAAAA",
+              "ViewState": "AQIAAEQAAAAAAAAAAAAAwE4AAAAmAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-14T06:14:02.232Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "CellData.cs",
-              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\CellData.cs",
-              "RelativeDocumentMoniker": "Main\\Csharp\\CellData.cs",
-              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\CellData.cs",
-              "RelativeToolTip": "Main\\Csharp\\CellData.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABYAAAAZAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-14T05:48:14.247Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "ElementList.cs",
-              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\ElementList.cs",
-              "RelativeDocumentMoniker": "Main\\Csharp\\ElementList.cs",
-              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\ElementList.cs",
-              "RelativeToolTip": "Main\\Csharp\\ElementList.cs",
-              "ViewState": "AQIAABgAAAAAAAAAAAAqwB4AAAAhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-13T05:35:07.183Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SandSimulation.cs",
-              "DocumentMoniker": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\SandSimulation.cs",
-              "RelativeDocumentMoniker": "Main\\Csharp\\SandSimulation.cs",
-              "ToolTip": "D:\\Godot\\Projects\\Sand Game Sharp 2\\Main\\Csharp\\SandSimulation.cs",
-              "RelativeToolTip": "Main\\Csharp\\SandSimulation.cs",
-              "ViewState": "AQIAANoAAAAAAAAAAADwv/MAAABrAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-08T22:21:15.833Z",
               "EditorCaption": ""
             }
           ]
