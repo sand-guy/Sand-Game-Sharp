@@ -43,7 +43,7 @@ public static class Physics
 		if (sim.Randf() >= viscosity) { // Viscosity is expressed as a percent chance to not apply ANY movement in a given frame (higher = more viscous)
 			sim.MoveAndSwap(row, col, newRow, newCol);
 		} else if (row != newRow || col != newCol){
-			sim.DontSleepNextFrame(row, col); // If the liquid did not move this frame, but could have, make sure its chunk is not put to sleep next frame to avoid artifacts
+			sim.ChunkMap.DontSleepNextFrame(row, col); // If the liquid did not move this frame, but could have, make sure its chunk is not put to sleep next frame to avoid artifacts
 		}
 	}
 
@@ -57,7 +57,7 @@ public static class Physics
 			sim.MoveAndSwap(row, col, row + 1, col);
 			return true;
 		} else if (sim.Randf() <= powderSlowing) { // powderSlowing can only stop the powder from moving diagonally in a given frame, cells will always try to move down
-			sim.DontSleepNextFrame(row, col); // If the powder was not allowed to move this frame, make sure its chunk is not put to sleep for the next frame to avoid artifacts
+			sim.ChunkMap.DontSleepNextFrame(row, col); // If the powder was not allowed to move this frame, make sure its chunk is not put to sleep for the next frame to avoid artifacts
 			return false;
 		}
 

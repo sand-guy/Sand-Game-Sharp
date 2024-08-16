@@ -7,28 +7,23 @@ using System.Threading.Tasks;
 [GlobalClass]
 public partial class SandSimulation : RefCounted
 {
-	// Background color, override for air (ID = 0) to speed up rendering
-	const byte BG_VAL_R = 70;
-	const byte BG_VAL_G = 70;
-	const byte BG_VAL_B = 70;
-
+	// Use to control methods during debug
+	bool DEBUG = false;
+	
 	// Shared random instance
 	Random Rand;
 
 	// Simulation dimensions
-	private int Width = 400;
-	private int Height = 240;
+	int Width = 512;
+	int Height = 288;
 
 	// Contains the identity of cells on the grid.
 	// Mutable information: Type, what cell is contained within that CellData
 	// Immutable information: ColorOffset, generated once on instantiation
 	CellData[] Cells;
 
-	// Drawing data to be used to generate an image once per frame
-	byte[] DrawData;
-
 	// The chunk map, used for partitioning rendering tasks between threads
-	ChunkMap ChunkMap;
+	internal ChunkMap ChunkMap;
 
 	// MULTITHREADING VARIABLES
 
@@ -45,18 +40,15 @@ public partial class SandSimulation : RefCounted
 
 	public SandSimulation()
 	{
-		ElementList.FillElementList();
-
 		Rand = new Random();
 
 		ChunkMap = new ChunkMap(Width, Height);
 
-		Array.Resize(ref DrawData, Width * Height * 3); // Must be 3x simulation size to store one byte per R/G/B channel
+		// ElementList is static
+		ElementList.FillElementList();
 
 		Array.Resize(ref Cells, Width * Height);
-		Array.Fill(Cells, new CellData(this)); // Populate with CellData, this pregenerates color offsets
-
-		GetColorImage(); // Draw the first frame
+		Array.Fill(Cells, new CellData()); // Populate with CellData, this pregenerates color offsets
 	}
 
 	// Advances the simulation, call this from Main and then call GetColorImage
@@ -70,9 +62,12 @@ public partial class SandSimulation : RefCounted
 
 		// Simulate the grid by giving threads a row of chunks to process
 		// Process all even rows, then all odd rows to prevent overlapping attempts at cell access
-
-		Parallel.ForEach(ChunkMap.EvenRows, chunkRow => ThreadProcess(chunkRow));
-		Parallel.ForEach(ChunkMap.OddRows, chunkRow => ThreadProcess(chunkRow));
+		if (DEBUG) {
+			
+		} else {
+			Parallel.ForEach(ChunkMap.EvenRows, chunkRow => ThreadProcess(chunkRow));
+			Parallel.ForEach(ChunkMap.OddRows, chunkRow => ThreadProcess(chunkRow));
+		}
 
 		// Debug, nonthreaded foreach statements to iterate over the rows sequentially
 		//foreach (int chunkRow in ChunkMap.EvenRows) { ThreadProcess(chunkRow); }
@@ -122,7 +117,32 @@ public partial class SandSimulation : RefCounted
 				}
 				int col = j % ChunkMap.ChunkSize + ColOffset;
 
-				ElementList.Elements[Cells[row * Width + col].Type].Process(this, row, col);
+				ElementList.Elements[GetCell(row, col).Type].Process(this, row, col);
+			}
+		}
+	}
+
+	private void ThreadProcessCols(int chunkCol)
+	{
+		List<int> ParticleOrder = new List<int>();
+		for (int cellOffset = 0; cellOffset < ChunkMap.ChunkSize * ChunkMap.ChunkSize; cellOffset++)
+		{
+			ParticleOrder.Add(cellOffset);
+		}
+
+		for (int chunkRow = 0; chunkRow < ChunkMap.Height; chunkRow++)
+		{
+			if (ChunkMap.GetCellCount(chunkRow, chunkCol) == 0 || (ChunkMap.IsSleeping(chunkRow, chunkCol) && Randf() > ChunkMap.AwakenChance))
+			{
+				continue;
+			}
+
+			// Shuffle the particle order to avoid artifacts
+			ParticleOrder = ParticleOrder.OrderBy(i => Rand.Next()).ToList();
+
+			foreach (int cellOffset in ParticleOrder)
+			{
+				// HMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 			}
 		}
 	}
@@ -243,8 +263,9 @@ public partial class SandSimulation : RefCounted
 		SetCell(row2, col2, old);
 	}
 
-	// Accessor method for GDScript, it doesn't like structs I guess!
-	public int GetCellType(int row, int col)
+	// Accessor method for GDScript, it doesn't like structs and/or properties I guess
+	// Within C# always use GetCell(row, col).Type
+	public int GDGetCellType(int row, int col)
 	{
 		return Cells[row * Width + col].Type;
 	}
@@ -254,60 +275,6 @@ public partial class SandSimulation : RefCounted
 		return Cells[row * Width + col];
 	}
 
-	// CHUNKING METHODS
-
-	private int GetChunkIndex(int row, int col)
-	{
-		if (!InBounds(row, col)) return 0;
-
-		int index = row / ChunkMap.ChunkSize * ChunkMap.Width + col / ChunkMap.ChunkSize;
-		if (index > ChunkMap.Width * ChunkMap.Height) return 0;
-
-		return index;
-	}
-
-	public void DontSleepNextFrame(int row, int col)
-	{
-		if (ChunkMap.WakeTime[GetChunkIndex(row, col)] <= 1)
-		{
-			ChunkMap.WakeTime[GetChunkIndex(row, col)]++;
-		}
-	}
-
-	// This is the unified method for waking up a chunk in the next frame
-	// If you want to awaken a chunk, for example because you moved a cell within it:
-	//      ALWAYS CALL THIS!
-	private void AwakenChunk(int row, int col)
-	{
-		ChunkMap.ShouldAwaken[GetChunkIndex(row, col)] = true; // Wake up this chunk
-		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Rerender this chunk this frame
-		int chunkRow = row % ChunkMap.ChunkSize;
-		int chunkCol = col % ChunkMap.ChunkSize;
-
-		// If we are awakening a chunk from a cell at any of the edges of a chunk
-		// We must also awaken the adjacent chunks
-		if (row > 0 && chunkRow == 0)
-		{
-			ChunkMap.ShouldAwaken[GetChunkIndex(row - 1, col)] = true;
-			ChunkMap.Updated[GetChunkIndex(row - 1, col)] = true;
-		}
-		if (row < Height - 1 && chunkRow == ChunkMap.ChunkSize - 1)
-		{
-			ChunkMap.ShouldAwaken[GetChunkIndex(row + 1, col)] = true;
-			ChunkMap.Updated[GetChunkIndex(row + 1, col)] = true;
-		}
-		if (col > 0 && chunkCol == 0)
-		{
-			ChunkMap.ShouldAwaken[GetChunkIndex(row, col - 1)] = true;
-			ChunkMap.Updated[GetChunkIndex(row, col - 1)] = true;
-		}
-		if (row < Width - 1 && chunkCol == ChunkMap.ChunkSize - 1)
-		{
-			ChunkMap.ShouldAwaken[GetChunkIndex(row, col + 1)] = true;
-			ChunkMap.Updated[GetChunkIndex(row, col + 1)] = true;
-		}
-	}
-
 	public void SetCell(int row, int col, CellData newCell)
 	{
 		if (GetCell(row, col).Type == 2 && newCell.Type != 0) // Walls can only be replaced by erasing them (placing air)
@@ -315,21 +282,12 @@ public partial class SandSimulation : RefCounted
 			return;
 		}
 
-		AwakenChunk(row, col);
-		
-		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
+		ChunkMap.AwakenChunk(row, col);
 
 		CellData oldCell = GetCell(row, col);
 		Cells[row * Width + col] = newCell;
 
-		if (oldCell.Type == 0 && newCell.Type != 0)
-		{
-			ChunkMap.CellCount[GetChunkIndex(row, col)]++;
-		}
-		else if (oldCell.Type != 0 && newCell.Type == 0)
-		{
-			ChunkMap.CellCount[GetChunkIndex(row, col)]--;
-		}
+		ChunkMap.CellChanged(row, col, oldCell.Type, newCell.Type);
 	}
 
 	public void SetCellType(int row, int col, int type)
@@ -339,26 +297,17 @@ public partial class SandSimulation : RefCounted
 			return;
 		}
 
-		AwakenChunk(row, col);
-		
-		ChunkMap.Updated[GetChunkIndex(row, col)] = true; // Set this chunk to rerender in the next frame, as it has had at least one cell update
+		ChunkMap.AwakenChunk(row, col);
 
 		int oldCellType = GetCell(row, col).Type;
 		Cells[row * Width + col].Type = type;
 
-		if (oldCellType == 0 && type != 0)
-		{
-			ChunkMap.CellCount[GetChunkIndex(row, col)]++;
-		}
-		else if (oldCellType != 0 && type == 0)
-		{
-			ChunkMap.CellCount[GetChunkIndex(row, col)]--;
-		}
+		ChunkMap.CellChanged(row, col, oldCellType, type);
 	}
 
 	public void DrawCell(int row, int col, int type)
 	{
-		AwakenChunk(row, col); // Wake this chunk up for the next frame
+		ChunkMap.AwakenChunk(row, col); // Wake this chunk up for the next frame
 		//SetCellType(row, col, type);
 		SetCell(row, col, new CellData(this, type));
 	}
@@ -366,36 +315,4 @@ public partial class SandSimulation : RefCounted
 	public int GetWidth() { return Width; }
 
 	public int GetHeight() { return Height; }
-
-	public byte[] GetColorImage()
-	{
-		for (int row = 0; row < Height; row++)
-		{
-			for (int col = 0; col < Width; col++)
-			{
-				if (!ChunkMap.Updated[GetChunkIndex(row, col)]) { // If the chunk was not updated this frame, leave the draw data as it was last frame
-					continue;
-				}
-				int idx = (row * Width + col) * 3;
-
-				int type = Cells[row * Width + col].Type;
-
-				if (type == 0) // Override for air, use background color defined in the sim
-				{
-					DrawData[idx] = BG_VAL_R;
-					DrawData[idx + 1] = BG_VAL_B;
-					DrawData[idx + 2] = BG_VAL_G;
-					continue;
-				}
-
-				byte[] color = ElementList.Elements[type].LerpColor(GetCell(row, col).ColorOffset);
-
-				DrawData[idx] = color[0];
-				DrawData[idx + 1] = color[1];
-				DrawData[idx + 2] = color[2];
-			}
-		}
-
-		return DrawData;
-	}
 }

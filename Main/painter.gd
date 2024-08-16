@@ -82,7 +82,7 @@ func draw_pixel(row: int, col: int) -> void:
 	if not sim.InBounds(row, col):
 		return
 	
-	if sim.GetCellType(row, col) == selected_element:
+	if sim.GDGetCellType(row, col) == selected_element:
 		return
 	
 	# Powders must have some random noise in order to prevent stacking behavior
