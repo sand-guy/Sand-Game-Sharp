@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 [GlobalClass]
 public partial class SandSimulation : RefCounted
 {
-	// Use to control methods during debug
-	bool DEBUG = false;
-	
 	// Shared random instance
 	Random Rand;
 
@@ -62,12 +59,8 @@ public partial class SandSimulation : RefCounted
 
 		// Simulate the grid by giving threads a row of chunks to process
 		// Process all even rows, then all odd rows to prevent overlapping attempts at cell access
-		if (DEBUG) {
-			
-		} else {
-			Parallel.ForEach(ChunkMap.EvenRows, chunkRow => ThreadProcess(chunkRow));
-			Parallel.ForEach(ChunkMap.OddRows, chunkRow => ThreadProcess(chunkRow));
-		}
+		Parallel.ForEach(ChunkMap.EvenRows, chunkRow => ThreadProcess(chunkRow));
+		Parallel.ForEach(ChunkMap.OddRows, chunkRow => ThreadProcess(chunkRow));
 
 		// Debug, nonthreaded foreach statements to iterate over the rows sequentially
 		//foreach (int chunkRow in ChunkMap.EvenRows) { ThreadProcess(chunkRow); }
@@ -118,31 +111,6 @@ public partial class SandSimulation : RefCounted
 				int col = j % ChunkMap.ChunkSize + ColOffset;
 
 				ElementList.Elements[GetCell(row, col).Type].Process(this, row, col);
-			}
-		}
-	}
-
-	private void ThreadProcessCols(int chunkCol)
-	{
-		List<int> ParticleOrder = new List<int>();
-		for (int cellOffset = 0; cellOffset < ChunkMap.ChunkSize * ChunkMap.ChunkSize; cellOffset++)
-		{
-			ParticleOrder.Add(cellOffset);
-		}
-
-		for (int chunkRow = 0; chunkRow < ChunkMap.Height; chunkRow++)
-		{
-			if (ChunkMap.GetCellCount(chunkRow, chunkCol) == 0 || (ChunkMap.IsSleeping(chunkRow, chunkCol) && Randf() > ChunkMap.AwakenChance))
-			{
-				continue;
-			}
-
-			// Shuffle the particle order to avoid artifacts
-			ParticleOrder = ParticleOrder.OrderBy(i => Rand.Next()).ToList();
-
-			foreach (int cellOffset in ParticleOrder)
-			{
-				// HMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 			}
 		}
 	}
